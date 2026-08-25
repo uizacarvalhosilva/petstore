@@ -2,36 +2,38 @@ const {getPetsByStatus,getPetById,createPet,updatePet,deletePet} = require('../.
 
 describe('Fluxo PETs', () => {
 
-  test('Buscar todos os pets', async () => {
+  let petId;
+
+  beforeAll(async () => {
+    const newPet = {
+      name: 'Pet de Teste',
+      status: 'available'
+    };
+
+    const response = await createPet(newPet);
+
+    petId = response.data.id;
+
+    console.log(`Pet criado com ID: ${petId}`);
+  });
+
+  test('Buscar todos os pets disponíveis', async () => {
     const response = await getPetsByStatus('available');
 
     expect(response.status).toBe(200);
     expect(Array.isArray(response.data)).toBe(true);
   });
 
-  test('Buscar um pet pelo ID', async () => {
-    const response = await getPetById(3);
+  test('Buscar o pet criado pelo ID', async () => {
+    const response = await getPetById(petId);
 
     expect(response.status).toBe(200);
-    expect(response.data).toHaveProperty('id');
+    expect(response.data).toHaveProperty('id', petId);
   });
 
-  test('Cadastrar um novo pet', async () => {
-    const newPet = {
-      id: 123456,
-      name: 'Novo Pet',
-      status: 'available'
-    };
-
-    const response = await createPet(newPet);
-
-    expect(response.status).toBe(200);
-    expect(response.data).toHaveProperty('id', newPet.id);
-  });
-
-  test('Atualizar um pet existente', async () => {
+  test('Atualizar o pet criado', async () => {
     const updatedPet = {
-      id: 123456,
+      id: petId,
       name: 'Pet Atualizado',
       status: 'sold'
     };
@@ -39,11 +41,13 @@ describe('Fluxo PETs', () => {
     const response = await updatePet(updatedPet);
 
     expect(response.status).toBe(200);
-    expect(response.data).toHaveProperty('name', updatedPet.name);
+    expect(response.data).toHaveProperty('id', petId);
+    expect(response.data).toHaveProperty('name', 'Pet Atualizado');
+    expect(response.data).toHaveProperty('status', 'sold');
   });
 
-  test('Deletar um pet pelo ID', async () => {
-    const response = await deletePet(123456);
+  test('Deletar o pet criado', async () => {
+    const response = await deletePet(petId);
 
     expect(response.status).toBe(200);
   });
